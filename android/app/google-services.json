@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "351966930497",
+    "firebase_url": "https://pokeclub-3598f.firebaseio.com",
+    "project_id": "pokeclub-3598f",
+    "storage_bucket": "pokeclub-3598f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:351966930497:android:1f37f6ca9cbbdfb3",
+        "android_client_info": {
+          "package_name": "com.pokeclub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "351966930497-ph23hkj834hakpkfp3tuve35r6rh796i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pokeclub",
+            "certificate_hash": "b35737428eddfb4647a61014d1166183d4d1b3c0"
+          }
+        },
+        {
+          "client_id": "351966930497-mj2d7laohqd12kucacl5spcrtf5ftrln.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANnJMVagYXXsCwhz7zSStuUmSIq2lQ5us"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "351966930497-mj2d7laohqd12kucacl5spcrtf5ftrln.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
