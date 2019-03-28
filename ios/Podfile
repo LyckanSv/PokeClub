@@ -10,6 +10,7 @@ target 'PokeClub' do
   pod 'Fabric', '~> 1.7.13'
   pod 'Crashlytics', '~> 3.10.7'
   pod 'Firebase/Auth', '~> 5.15.0'
+  pod 'Firebase/Database', '~> 5.15.0'
 end
 
 
