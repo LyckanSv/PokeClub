@@ -11,6 +11,8 @@ target 'PokeClub' do
   pod 'Crashlytics', '~> 3.10.7'
   pod 'Firebase/Auth', '~> 5.15.0'
   pod 'Firebase/Database', '~> 5.15.0'
+  pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
+
 end
 
 
