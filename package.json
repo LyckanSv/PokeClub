@@ -20,7 +20,8 @@
     "redux": "^4.0.1",
     "redux-saga": "^1.0.2",
     "reduxsauce": "^1.0.1",
-    "seamless-immutable": "^7.1.4"
+    "seamless-immutable": "^7.1.4",
+    "tcomb-form-native": "^0.6.20"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",
