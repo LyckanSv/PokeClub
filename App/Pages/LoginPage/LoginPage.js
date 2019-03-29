@@ -38,14 +38,14 @@ export default class LoginScreen extends Component {
               />
             </Item>
             <Button rounded style={styles.button}>
-              <Text>Login</Text>
+              <Text style={{fontFamily: "Montserrat-Regular"}}>Login</Text>
             </Button>
             <Button
               transparent
               style={styles.button}
               onPress={() => navigation.navigate("SignUpScreen")}
             >
-              <Text>Sign up</Text>
+              <Text style={{fontFamily: "PlayfairDisplay-Regular"}}>Sign up</Text>
             </Button>
           </Form>
         </View>

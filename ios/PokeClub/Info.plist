@@ -2,20 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>Fabric</key>
-  <dict>
-    <key>APIKey</key>
-    <string>9d716c0deb0e9cc12d79eb84c1f8f6cc6d8a455c</string>
-    <key>Kits</key>
-    <array>
-      <dict>
-        <key>KitInfo</key>
-        <dict/>
-        <key>KitName</key>
-        <string>Crashlytics</string>
-      </dict>
-    </array>
-  </dict>
+	<key>Fabric</key>
+	<dict>
+		<key>APIKey</key>
+		<string>9d716c0deb0e9cc12d79eb84c1f8f6cc6d8a455c</string>
+		<key>Kits</key>
+		<array>
+			<dict>
+				<key>KitInfo</key>
+				<dict/>
+				<key>KitName</key>
+				<string>Crashlytics</string>
+			</dict>
+		</array>
+	</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -52,7 +52,7 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -73,6 +73,8 @@
 		<string>rubicon-icon-font.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
+		<string>Montserrat-Regular.ttf</string>
+		<string>PlayfairDisplay-Regular.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
