@@ -49,6 +49,7 @@ export default class SignUpScreen extends Component {
 
   render() {
     const { emailValue, passwordValue, repeatPasswordValue } = this.state;
+    const { navigation } = this.props;
     return (
       <Container>
         {this.headerBuilder()}
@@ -81,7 +82,11 @@ export default class SignUpScreen extends Component {
                   secureTextEntry
                 />
               </Item>
-              <Button rounded style={styles.button}>
+              <Button
+                rounded
+                style={styles.button}
+                onPress={() => navigation.navigate("RegionsScreen")}
+              >
                 <Text>Sign Up</Text>
               </Button>
             </Form>
