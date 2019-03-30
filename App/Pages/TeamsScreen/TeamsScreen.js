@@ -10,32 +10,28 @@ import {
   Title,
   Container
 } from "native-base";
-import RegionItem from "../../Components/RegionItem/RegionItem";
+import TeamItem from "../../Components/TeamItem/TeamItem";
 import SearchBar from "../../Components/SearchBar/SearchBar";
+import TeamActionModal from "../../Components/TeamActionsModal/TeamActionModal";
 
-export default class RegionScreen extends Component {
+export default class TeamsScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       activateSearch: false,
+      teamActionModalActivate: false,
       regions: [
         {
           id: 1,
-          text: "Jeoto",
-          image:
-            "http://66.media.tumblr.com/8796a0180dbcd92c42b735712001b2df/tumblr_niczi1uL2v1qiemkoo4_1280.png"
+          text: "Fuego"
         },
         {
           id: 2,
-          text: "Canto",
-          image:
-            "http://images.fanpop.com/images/image_uploads/Kanto-Towns-pok-C3-A9mon-124041_290_242.jpg"
+          text: "Basicos"
         },
         {
           id: 3,
-          text: "Hoen",
-          image:
-            "https://i.kym-cdn.com/photos/images/original/000/911/062/0ae.png"
+          text: "Hadas"
         }
       ]
     };
@@ -43,11 +39,12 @@ export default class RegionScreen extends Component {
 
   headerBuilder = () => {
     const { activateSearch } = this.state;
+    const { navigation } = this.props;
     return (
       <Header>
         <Left>
-          <Button transparent>
-            <Icon name="menu" />
+          <Button transparent onPress={() => navigation.goBack()}>
+            <Icon name="arrow-back" />
           </Button>
         </Left>
         <Body>
@@ -60,29 +57,36 @@ export default class RegionScreen extends Component {
           >
             <Icon name="search" />
           </Button>
+          <Button transparent onPress={() => navigation.navigate("TeamScreen")}>
+            <Icon name="add" />
+          </Button>
         </Right>
       </Header>
     );
   };
 
-  renderItem = ({ item }) => (
-    <RegionItem
-      id={item.id}
-      onPressItem={v => this.props.navigation.navigate("TeamsScreen")}
-      selected={false}
-      title={item.text}
-      image={item.image}
-    />
-  );
+  renderItem = ({ item }) => {
+    const { teamActionModalActivate } = this.state;
+    return (
+      <TeamItem
+        id={item.id}
+        onPressItem={v => {
+          this.setState({ teamActionModalActivate: !teamActionModalActivate });
+        }}
+        selected={false}
+        title={item.text}
+      />
+    );
+  };
 
   render() {
-    const { regions, activateSearch } = this.state;
+    const { regions, activateSearch, teamActionModalActivate } = this.state;
     return (
       <Container>
         {this.headerBuilder()}
         <SearchBar
           searching={activateSearch}
-          placeholder="Region"
+          placeholder="Team name"
           onChangeText={v => {
             console.log(v);
             this.setState({ activateSearch: !activateSearch });
@@ -93,6 +97,14 @@ export default class RegionScreen extends Component {
           extraData={this.state}
           keyExtractor={(item, index) => item.id + index}
           renderItem={this.renderItem}
+        />
+        <TeamActionModal
+          active={teamActionModalActivate}
+          onRequestClose={() => {
+            this.setState({
+              teamActionModalActivate: !teamActionModalActivate
+            });
+          }}
         />
       </Container>
     );

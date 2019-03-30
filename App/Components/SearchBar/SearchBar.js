@@ -8,7 +8,7 @@ export default class SearchBar extends React.PureComponent {
   }
 
   render() {
-    const { searching, onChangeText } = this.props;
+    const { searching, onChangeText, placeholder } = this.props;
     const { value } = this.state;
 
     if (!searching) {
@@ -24,7 +24,7 @@ export default class SearchBar extends React.PureComponent {
       >
         <Item rounded style={{ backgroundColor: "#fff", flex: 1 }}>
           <Input
-            placeholder="Region"
+            placeholder={placeholder}
             value={value}
             onChangeText={v => this.setState({ value: v })}
           />
