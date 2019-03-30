@@ -11,11 +11,13 @@ import {
   Container
 } from "native-base";
 import RegionItem from "../../Components/RegionItem/RegionItem";
+import SearchBar from "../../Components/SearchBar/SearchBar";
 
 export default class RegionScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      activateSearch: false,
       regions: [
         {
           id: 1,
@@ -40,6 +42,7 @@ export default class RegionScreen extends Component {
   }
 
   headerBuilder = () => {
+    const { activateSearch } = this.state;
     return (
       <Header>
         <Left>
@@ -50,7 +53,14 @@ export default class RegionScreen extends Component {
         <Body>
           <Title>Regions</Title>
         </Body>
-        <Right />
+        <Right>
+          <Button
+            transparent
+            onPress={() => this.setState({ activateSearch: !activateSearch })}
+          >
+            <Icon name="search" />
+          </Button>
+        </Right>
       </Header>
     );
   };
@@ -66,10 +76,17 @@ export default class RegionScreen extends Component {
   );
 
   render() {
-    const { regions } = this.state;
+    const { regions, activateSearch } = this.state;
     return (
       <Container>
         {this.headerBuilder()}
+        <SearchBar
+          searching={activateSearch}
+          onChangeText={v => {
+            console.log(v);
+            this.setState({ activateSearch: !activateSearch });
+          }}
+        />
         <FlatList
           data={regions}
           extraData={this.state}
