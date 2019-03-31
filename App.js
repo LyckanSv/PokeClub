@@ -1,19 +1,21 @@
-import React, { Component } from "react";
+import React from "react";
 import { Provider } from "react-redux";
-import firebase from "react-native-firebase";
+import { StyleProvider } from "native-base";
 import MainNavigation from "./App/Navigation/MainNavigation";
 import createStore from "./App/Redux";
+import getTheme from "./native-base-theme/components";
+import theme from "./native-base-theme/variables/commonColor";
 
 const store = createStore();
 
-class App extends Component {
-  render() {
-    return (
-      <Provider store={store}>
+const App = () => {
+  return (
+    <Provider store={store}>
+      <StyleProvider style={getTheme(theme)}>
         <MainNavigation />
-      </Provider>
-    );
-  }
-}
+      </StyleProvider>
+    </Provider>
+  );
+};
 
 export default App;

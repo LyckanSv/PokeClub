@@ -16,28 +16,55 @@ import { Col, Row, Grid } from "react-native-easy-grid";
 import { connect } from "react-redux";
 import firebase from "react-native-firebase";
 import PokemonTeamActions from "../../Redux/PokemonTeamRedux";
+import TeamScreenModes from "../../Utils/TeamScreenModes";
 
 class TeamScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       region: "",
-      currentUser: null
+      currentUser: null,
+      screenMode: TeamScreenModes.Info,
+      teamId: null
     };
   }
 
   componentDidMount() {
     const { navigation } = this.props;
-    this.setState({ region: navigation.getParam("region") });
+    this.setState({
+      region: navigation.getParam("region"),
+      teamId: navigation.getParam("teamId"),
+      screenMode: navigation.getParam("screenMode")
+    });
+    this.setState({ teamId: navigation.getParam("teamId") });
     const { currentUser } = firebase.auth();
     this.setState({ currentUser });
   }
 
-  handlerSaveTeam = (team, region, user) => {
+  handlerCreateTeam = (team, region, user) => {
     firebase
       .database()
       .ref("Teams/")
       .push({
+        region,
+        team,
+        user
+      })
+      .then(data => {
+        // success callback
+        console.log("data ", data);
+      })
+      .catch(error => {
+        // error callback
+        console.log("error ", error);
+      });
+  };
+
+  handlerUpdateTeam = (team, region, user, id) => {
+    firebase
+      .database()
+      .ref(`Teams/${id}`)
+      .update({
         region,
         team,
         user
@@ -139,43 +166,55 @@ class TeamScreen extends Component {
 
   render() {
     const { pokemonTeamData } = this.props;
-    const { region, currentUser } = this.state;
+    const { region, currentUser, screenMode, teamId } = this.state;
     return (
       <Container>
         {this.headerBuilder()}
         <Grid>
           <Row>
-            <Col style={{ backgroundColor: "#54a0ff" }}>
+            <Col>
               {this.pokemonTileBuilder(pokemonTeamData.pokemonTeam[0], 0)}
             </Col>
-            <Col style={{ backgroundColor: "#5f27cd" }}>
+            <Col>
               {this.pokemonTileBuilder(pokemonTeamData.pokemonTeam[1], 1)}
             </Col>
           </Row>
           <Row>
-            <Col style={{ backgroundColor: "#5f27cd" }}>
+            <Col>
               {this.pokemonTileBuilder(pokemonTeamData.pokemonTeam[2], 2)}
             </Col>
-            <Col style={{ backgroundColor: "#54a0ff" }}>
+            <Col>
               {this.pokemonTileBuilder(pokemonTeamData.pokemonTeam[3], 3)}
             </Col>
           </Row>
           <Row>
-            <Col style={{ backgroundColor: "#54a0ff" }}>
+            <Col>
               {this.pokemonTileBuilder(pokemonTeamData.pokemonTeam[4], 4)}
             </Col>
-            <Col style={{ backgroundColor: "#5f27cd" }}>
+            <Col>
               {this.pokemonTileBuilder(pokemonTeamData.pokemonTeam[5], 5)}
             </Col>
           </Row>
         </Grid>
         <Button
+          style={{ margin: 10 }}
+          block
+          rounded
           onPress={() => {
-            this.handlerSaveTeam(
-              pokemonTeamData.pokemonTeam,
-              region,
-              currentUser.uid
-            );
+            if (screenMode === TeamScreenModes.Create) {
+              this.handlerCreateTeam(
+                pokemonTeamData.pokemonTeam,
+                region,
+                currentUser.uid
+              );
+            } else if (screenMode === TeamScreenModes.Edit) {
+              this.handlerUpdateTeam(
+                pokemonTeamData.pokemonTeam,
+                region,
+                currentUser.uid,
+                teamId
+              );
+            }
           }}
         >
           <Text>Save</Text>

@@ -16,6 +16,7 @@ import TeamItem from "../../Components/TeamItem/TeamItem";
 import SearchBar from "../../Components/SearchBar/SearchBar";
 import TeamActionModal from "../../Components/TeamActionsModal/TeamActionModal";
 import PokemonTeamActions from "../../Redux/PokemonTeamRedux";
+import TeamsScreenModes from "../../Utils/TeamScreenModes";
 
 class TeamsScreen extends Component {
   constructor(props) {
@@ -25,25 +26,17 @@ class TeamsScreen extends Component {
       activateSearch: false,
       teamActionModalActivate: false,
       teams: [],
-      regions: [
-        {
-          id: 1,
-          text: "Fuego"
-        },
-        {
-          id: 2,
-          text: "Basicos"
-        },
-        {
-          id: 3,
-          text: "Hadas"
-        }
-      ]
+      selectedTeam: null
     };
   }
 
   componentDidMount() {
-    this.setState({ region: this.props.navigation.getParam("region") });
+    const { navigation } = this.props;
+    this.setState({ region: navigation.getParam("region") });
+    this.fetchTeams();
+  }
+
+  fetchTeams = () => {
     firebase
       .database()
       .ref("/Teams/")
@@ -60,10 +53,17 @@ class TeamsScreen extends Component {
         console.log("Items", items);
         this.setState({ teams: items });
       });
-  }
+  };
+
+  deleteTeam = id => {
+    firebase
+      .database()
+      .ref(`Teams/${id}`)
+      .remove();
+  };
 
   headerBuilder = () => {
-    const { activateSearch } = this.state;
+    const { activateSearch, region } = this.state;
     const { navigation } = this.props;
     return (
       <Header>
@@ -85,7 +85,10 @@ class TeamsScreen extends Component {
           <Button
             transparent
             onPress={() =>
-              navigation.navigate("TeamScreen", { region: this.state.region })
+              navigation.navigate("TeamScreen", {
+                region,
+                screenMode: TeamsScreenModes.Edit
+              })
             }
           >
             <Icon name="add" />
@@ -100,8 +103,11 @@ class TeamsScreen extends Component {
     return (
       <TeamItem
         id={item.key}
-        onPressItem={v => {
-          this.setState({ teamActionModalActivate: !teamActionModalActivate });
+        onPressItem={() => {
+          this.setState({
+            teamActionModalActivate: !teamActionModalActivate,
+            selectedTeam: item
+          });
         }}
         selected={false}
         title={item.region}
@@ -111,7 +117,14 @@ class TeamsScreen extends Component {
   };
 
   render() {
-    const { teams, activateSearch, teamActionModalActivate } = this.state;
+    const {
+      teams,
+      activateSearch,
+      teamActionModalActivate,
+      selectedTeam,
+      region
+    } = this.state;
+    const { addPokemonTeam, navigation } = this.props;
     return (
       <Container>
         {this.headerBuilder()}
@@ -126,7 +139,7 @@ class TeamsScreen extends Component {
         <FlatList
           data={teams}
           extraData={this.state}
-          keyExtractor={(item, index) => item.key}
+          keyExtractor={item => item.key}
           renderItem={this.renderItem}
         />
         <TeamActionModal
@@ -136,6 +149,19 @@ class TeamsScreen extends Component {
               teamActionModalActivate: !teamActionModalActivate
             });
           }}
+          onRequestEdit={() => {
+            this.setState({
+              teamActionModalActivate: !teamActionModalActivate
+            });
+            addPokemonTeam(selectedTeam.team);
+            navigation.navigate("TeamScreen", {
+              region,
+              teamId: selectedTeam.key,
+              screenMode: TeamsScreenModes.Edit
+            });
+          }}
+          onRequestDelete={() => {}}
+          onRequestInfo={() => {}}
         />
       </Container>
     );

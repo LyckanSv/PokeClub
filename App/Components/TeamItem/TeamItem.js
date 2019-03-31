@@ -1,5 +1,6 @@
 import React from "react";
-import { TouchableOpacity, View, Text, Image } from "react-native";
+import { TouchableOpacity, View, Image } from "react-native";
+import { Text } from "native-base";
 
 const ball = require("../../Assets/Images/ball.png");
 
@@ -32,7 +33,6 @@ export default class TeamItem extends React.PureComponent {
 
   render() {
     const { selected, title, times } = this.props;
-    const textColor = selected ? "yellow" : "black";
     return (
       <TouchableOpacity
         onPress={this.onPress}
@@ -46,8 +46,8 @@ export default class TeamItem extends React.PureComponent {
         }}
       >
         <View>
-          <View style={{ padding: 10, backgroundColor: "red" }}>
-            <Text style={{ color: textColor }}>{title}</Text>
+          <View style={{ padding: 10, backgroundColor: "#C32F2F" }}>
+            <Text style={{ color: "#fff" }}>{title}</Text>
           </View>
           <View style={{ flexDirection: "row" }}>
             {this.ballBuilder(times)}
