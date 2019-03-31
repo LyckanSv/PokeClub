@@ -11,56 +11,47 @@ import {
   Container
 } from "native-base";
 import { connect } from "react-redux";
-import firebase from "react-native-firebase";
-import TeamItem from "../../Components/TeamItem/TeamItem";
+import PokedexItem from "../../Components/PokedexItem/PokedexItem";
 import SearchBar from "../../Components/SearchBar/SearchBar";
 import TeamActionModal from "../../Components/TeamActionsModal/TeamActionModal";
+import PokedexActions from "../../Redux/PokedexRedux";
+import PokemonActions from "../../Redux/PokemonRedux";
 import PokemonTeamActions from "../../Redux/PokemonTeamRedux";
 
-class TeamsScreen extends Component {
+class PokedexScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      region: null,
       activateSearch: false,
       teamActionModalActivate: false,
-      teams: [],
-      regions: [
-        {
-          id: 1,
-          text: "Fuego"
-        },
-        {
-          id: 2,
-          text: "Basicos"
-        },
-        {
-          id: 3,
-          text: "Hadas"
-        }
-      ]
+      index: null
     };
   }
 
   componentDidMount() {
-    this.setState({ region: this.props.navigation.getParam("region") });
-    firebase
-      .database()
-      .ref("/Teams/")
-      .on("value", snapshot => {
-        const items = [];
-        snapshot.forEach(child => {
-          items.push({
-            key: child.key,
-            region: child.val().region,
-            team: child.val().team,
-            user: child.val().user
-          });
-        });
-        console.log("Items", items);
-        this.setState({ teams: items });
-      });
+    const { navigation, getPokedex } = this.props;
+    const region = navigation.getParam("region");
+    const index = navigation.getParam("index");
+    this.setState({ index });
+    getPokedex(this.regionToCode(region));
   }
+
+  regionToCode = region => {
+    switch (region) {
+      case "kanto":
+        return 2;
+      case "johto":
+        return 3;
+      case "hoenn":
+        return 4;
+      case "sinnoh":
+        return 5;
+      case "unova":
+        return 8;
+      default:
+        return 0;
+    }
+  };
 
   headerBuilder = () => {
     const { activateSearch } = this.state;
@@ -73,7 +64,7 @@ class TeamsScreen extends Component {
           </Button>
         </Left>
         <Body>
-          <Title>Teams</Title>
+          <Title>Regions</Title>
         </Body>
         <Right>
           <Button
@@ -82,12 +73,7 @@ class TeamsScreen extends Component {
           >
             <Icon name="search" />
           </Button>
-          <Button
-            transparent
-            onPress={() =>
-              navigation.navigate("TeamScreen", { region: this.state.region })
-            }
-          >
+          <Button transparent onPress={() => navigation.navigate("TeamScreen")}>
             <Icon name="add" />
           </Button>
         </Right>
@@ -95,23 +81,44 @@ class TeamsScreen extends Component {
     );
   };
 
+  addPokemonInTeam(pokemon, index) {
+    const { addPokemonTeam, pokemonTeamData } = this.props;
+    const team = [...pokemonTeamData.pokemonTeam];
+    team[index] = pokemon;
+    addPokemonTeam(team);
+  }
+
   renderItem = ({ item }) => {
-    const { teamActionModalActivate } = this.state;
+    const { teamActionModalActivate, index } = this.state;
+    const idImage = item.pokemon_species.url.substring(
+      42,
+      item.pokemon_species.url.length - 1
+    );
+    const image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${idImage}.png`;
     return (
-      <TeamItem
-        id={item.key}
-        onPressItem={v => {
-          this.setState({ teamActionModalActivate: !teamActionModalActivate });
+      <PokedexItem
+        id={item.entry_number}
+        onPressItem={() => {
+          // this.setState({ teamActionModalActivate: !teamActionModalActivate });
+          this.addPokemonInTeam(
+            {
+              entry_number: item.entry_number,
+              name: item.pokemon_species.name,
+              image
+            },
+            index
+          );
         }}
         selected={false}
-        title={item.region}
-        times={item.team.length}
+        name={item.pokemon_species.name}
+        image={image}
       />
     );
   };
 
   render() {
-    const { teams, activateSearch, teamActionModalActivate } = this.state;
+    const { activateSearch, teamActionModalActivate } = this.state;
+    const { pokedex } = this.props;
     return (
       <Container>
         {this.headerBuilder()}
@@ -124,9 +131,9 @@ class TeamsScreen extends Component {
           }}
         />
         <FlatList
-          data={teams}
+          data={pokedex.pokemons}
           extraData={this.state}
-          keyExtractor={(item, index) => item.key}
+          keyExtractor={(item, index) => item.pokemon_species.name}
           renderItem={this.renderItem}
         />
         <TeamActionModal
@@ -144,25 +151,23 @@ class TeamsScreen extends Component {
 
 const mapStateToProps = state => {
   return {
+    pokedex: state.pokedexData,
     pokemonTeamData: state.pokemonTeamData
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
+    // eslint-disable-next-line import/no-named-as-default-member
+    getPokedex: region => dispatch(PokedexActions.getPokedexRequest(region)),
+    // eslint-disable-next-line import/no-named-as-default-member
     addPokemonTeam: pokemonTeam =>
       // eslint-disable-next-line import/no-named-as-default-member
-      dispatch(PokemonTeamActions.addPokemonTeam(pokemonTeam)),
-    getPokemonTeam: () =>
-      // eslint-disable-next-line import/no-named-as-default-member
-      dispatch(PokemonTeamActions.getPokemonTeam()),
-    deletePokemonTeam: () =>
-      // eslint-disable-next-line import/no-named-as-default-member
-      dispatch(PokemonTeamActions.deletePokemonTeam())
+      dispatch(PokemonTeamActions.addPokemonTeam(pokemonTeam))
   };
 };
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(TeamsScreen);
+)(PokedexScreen);

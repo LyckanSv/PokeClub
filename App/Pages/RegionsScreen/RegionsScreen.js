@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { FlatList } from "react-native";
+import { FlatList, View } from "react-native";
 import {
   Button,
   Header,
@@ -10,35 +10,30 @@ import {
   Title,
   Container
 } from "native-base";
+import { BarIndicator } from "react-native-indicators";
+import { connect } from "react-redux";
+import SplashScreen from "react-native-splash-screen";
 import RegionItem from "../../Components/RegionItem/RegionItem";
 import SearchBar from "../../Components/SearchBar/SearchBar";
+import RegionsActions from "../../Redux/RegionsRedux";
 
-export default class RegionScreen extends Component {
+class RegionScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      activateSearch: false,
-      regions: [
-        {
-          id: 1,
-          text: "Jeoto",
-          image:
-            "http://66.media.tumblr.com/8796a0180dbcd92c42b735712001b2df/tumblr_niczi1uL2v1qiemkoo4_1280.png"
-        },
-        {
-          id: 2,
-          text: "Canto",
-          image:
-            "http://images.fanpop.com/images/image_uploads/Kanto-Towns-pok-C3-A9mon-124041_290_242.jpg"
-        },
-        {
-          id: 3,
-          text: "Hoen",
-          image:
-            "https://i.kym-cdn.com/photos/images/original/000/911/062/0ae.png"
-        }
-      ]
+      activateSearch: false
     };
+  }
+
+  componentDidMount() {
+    const { getRegions } = this.props;
+    SplashScreen.hide();
+    getRegions();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    console.log("test", nextProps);
+    // console.log(this.props);
   }
 
   headerBuilder = () => {
@@ -65,18 +60,28 @@ export default class RegionScreen extends Component {
     );
   };
 
-  renderItem = ({ item }) => (
-    <RegionItem
-      id={item.id}
-      onPressItem={v => this.props.navigation.navigate("TeamsScreen")}
-      selected={false}
-      title={item.text}
-      image={item.image}
-    />
-  );
+  renderItem = ({ item, index }) => {
+    if (item.name === "kalos" || item.name === "alola") {
+      return <View />;
+    }
+    const { navigation } = this.props;
+    return (
+      <RegionItem
+        id={index}
+        onPressItem={() =>
+          navigation.navigate("TeamsScreen", { region: item.name })
+        }
+        selected={false}
+        title={item.name}
+        image="http://66.media.tumblr.com/ce1f2d50192695b73e99087c415d13f3/tumblr_mtsibjBPPI1rvxzv5o1_500.png"
+      />
+    );
+  };
 
   render() {
-    const { regions, activateSearch } = this.state;
+    const { activateSearch } = this.state;
+    const { regions } = this.props;
+    const IS_LOADING = regions.fetching === true;
     return (
       <Container>
         {this.headerBuilder()}
@@ -88,13 +93,32 @@ export default class RegionScreen extends Component {
             this.setState({ activateSearch: !activateSearch });
           }}
         />
+        {IS_LOADING && <BarIndicator />}
         <FlatList
-          data={regions}
+          data={regions.regions}
           extraData={this.state}
-          keyExtractor={(item, index) => item.id + index}
+          keyExtractor={(item, index) => item.name}
           renderItem={this.renderItem}
         />
       </Container>
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    regions: state.regionsData
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    // eslint-disable-next-line import/no-named-as-default-member
+    getRegions: () => dispatch(RegionsActions.getRegionsRequest())
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(RegionScreen);

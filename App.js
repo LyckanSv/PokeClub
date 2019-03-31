@@ -1,13 +1,19 @@
 import React, { Component } from "react";
-import SplashScreen from "react-native-splash-screen";
-import LoginNavigation from "./App/Navigation/LoginNavigation";
+import { Provider } from "react-redux";
+import firebase from "react-native-firebase";
+import MainNavigation from "./App/Navigation/MainNavigation";
+import createStore from "./App/Redux";
 
-export default class App extends Component {
-  componentDidMount() {
-    SplashScreen.hide();
-  }
+const store = createStore();
 
+class App extends Component {
   render() {
-    return <LoginNavigation />;
+    return (
+      <Provider store={store}>
+        <MainNavigation />
+      </Provider>
+    );
   }
 }
+
+export default App;

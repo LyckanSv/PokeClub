@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { ImageBackground, Image } from "react-native";
 import { View, Form, Button, Input, Item, Text } from "native-base";
+import SplashScreen from "react-native-splash-screen";
+import Firebase from "react-native-firebase";
 import styles from "./LoginPageStyle";
 
 const background = require("../../Assets/Images/background_login.png");
@@ -11,9 +13,22 @@ export default class LoginScreen extends Component {
     super(props);
     this.state = {
       emailValue: "",
-      passwordValue: ""
+      passwordValue: "",
+      error: null
     };
   }
+
+  componentWillMount() {
+    SplashScreen.hide();
+  }
+
+  handleLogin = (email, password) => {
+    const { navigation } = this.props;
+    Firebase.auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(() => navigation.navigate("HomeNavigation"))
+      .catch(error => this.setState({ error: error.message }));
+  };
 
   render() {
     const { emailValue, passwordValue } = this.state;
@@ -37,15 +52,19 @@ export default class LoginScreen extends Component {
                 secureTextEntry
               />
             </Item>
-            <Button rounded style={styles.button}>
-              <Text style={{fontFamily: "Montserrat-Regular"}}>Login</Text>
+            <Button
+              rounded
+              style={styles.button}
+              onPress={() => this.handleLogin(emailValue, passwordValue)}
+            >
+              <Text style={{ fontFamily: "Montserrat-Regular" }}>Login</Text>
             </Button>
             <Button
               transparent
               style={styles.button}
               onPress={() => navigation.navigate("SignUpScreen")}
             >
-              <Text style={{fontFamily: "PlayfairDisplay-Regular"}}>Sign up</Text>
+              <Text style={{ fontFamily: "Montserrat-Regular" }}>Sign up</Text>
             </Button>
           </Form>
         </View>

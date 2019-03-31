@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Firebase from "react-native-firebase";
 import { ImageBackground, Image } from "react-native";
 import {
   Form,
@@ -26,9 +27,18 @@ export default class SignUpScreen extends Component {
     this.state = {
       emailValue: "",
       passwordValue: "",
-      repeatPasswordValue: ""
+      repeatPasswordValue: "",
+      error: null
     };
   }
+
+  handleSignUp = (email, password) => {
+    const { navigation } = this.props;
+    Firebase.auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(() => navigation.navigate("HomeNavigation"))
+      .catch(error => this.setState({ error: error.message }));
+  };
 
   headerBuilder = () => {
     const { navigation } = this.props;
@@ -85,7 +95,9 @@ export default class SignUpScreen extends Component {
               <Button
                 rounded
                 style={styles.button}
-                onPress={() => navigation.navigate("RegionsScreen")}
+                onPress={() => {
+                  this.handleSignUp(emailValue, passwordValue);
+                }}
               >
                 <Text>Sign Up</Text>
               </Button>

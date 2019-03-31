@@ -1,5 +1,7 @@
 import React from "react";
-import { TouchableOpacity, View, Text } from "react-native";
+import { TouchableOpacity, View, Text, Image } from "react-native";
+
+const ball = require("../../Assets/Images/ball.png");
 
 export default class TeamItem extends React.PureComponent {
   onPress = () => {
@@ -7,8 +9,29 @@ export default class TeamItem extends React.PureComponent {
     onPressItem(id);
   };
 
+  ballBuilder = time => {
+    const balls = [];
+    // eslint-disable-next-line no-plusplus
+    for (let index = 0; index < time; index++) {
+      balls.push(
+        <Image
+          style={{
+            height: 20,
+            width: 20,
+            marginLeft: 5,
+            marginTop: 10,
+            marginBottom: 10
+          }}
+          source={ball}
+          resizeMode="contain"
+        />
+      );
+    }
+    return balls;
+  };
+
   render() {
-    const { selected, title } = this.props;
+    const { selected, title, times } = this.props;
     const textColor = selected ? "yellow" : "black";
     return (
       <TouchableOpacity
@@ -26,16 +49,8 @@ export default class TeamItem extends React.PureComponent {
           <View style={{ padding: 10, backgroundColor: "red" }}>
             <Text style={{ color: textColor }}>{title}</Text>
           </View>
-          <View>
-            <View
-              style={{
-                height: 20,
-                width: 20,
-                borderRadius: 15,
-                backgroundColor: "red",
-                margin: 10
-              }}
-            />
+          <View style={{ flexDirection: "row" }}>
+            {this.ballBuilder(times)}
           </View>
         </View>
       </TouchableOpacity>
