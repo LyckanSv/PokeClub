@@ -11,12 +11,10 @@ import {
   Container
 } from "native-base";
 import { connect } from "react-redux";
+import { BarIndicator } from "react-native-indicators";
 import PokedexItem from "../../Components/PokedexItem/PokedexItem";
 import SearchBar from "../../Components/SearchBar/SearchBar";
-import TeamActionModal from "../../Components/TeamActionsModal/TeamActionModal";
 import PokedexActions from "../../Redux/PokedexRedux";
-import PokemonActions from "../../Redux/PokemonRedux";
-import PokemonTeamActions from "../../Redux/PokemonTeamRedux";
 
 class PokedexScreen extends Component {
   constructor(props) {
@@ -24,7 +22,8 @@ class PokedexScreen extends Component {
     this.state = {
       activateSearch: false,
       teamActionModalActivate: false,
-      index: null
+      index: null,
+      selectedPokemon: { id: null }
     };
   }
 
@@ -81,33 +80,27 @@ class PokedexScreen extends Component {
     );
   };
 
-  addPokemonInTeam(pokemon, index) {
-    const { addPokemonTeam, pokemonTeamData } = this.props;
-    const team = [...pokemonTeamData.pokemonTeam];
-    team[index] = pokemon;
-    addPokemonTeam(team);
-  }
-
   renderItem = ({ item }) => {
-    const { teamActionModalActivate, index } = this.state;
-    const idImage = item.pokemon_species.url.substring(
+    const { navigation } = this.props;
+    const { index } = this.state;
+    const id = item.pokemon_species.url.substring(
       42,
       item.pokemon_species.url.length - 1
     );
-    const image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${idImage}.png`;
+    const image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
     return (
       <PokedexItem
         id={item.entry_number}
         onPressItem={() => {
-          // this.setState({ teamActionModalActivate: !teamActionModalActivate });
-          this.addPokemonInTeam(
-            {
+          navigation.navigate("PokemonDetailScreen", {
+            pokemon: {
+              id,
               entry_number: item.entry_number,
               name: item.pokemon_species.name,
               image
             },
             index
-          );
+          });
         }}
         selected={false}
         name={item.pokemon_species.name}
@@ -117,8 +110,9 @@ class PokedexScreen extends Component {
   };
 
   render() {
-    const { activateSearch, teamActionModalActivate } = this.state;
-    const { pokedex } = this.props;
+    const { activateSearch } = this.state;
+    const { pokedex, pokemonDetailData } = this.props;
+    const IS_LOADING = pokedex.fetching;
     return (
       <Container>
         {this.headerBuilder()}
@@ -130,19 +124,12 @@ class PokedexScreen extends Component {
             this.setState({ activateSearch: !activateSearch });
           }}
         />
+        {IS_LOADING && <BarIndicator />}
         <FlatList
           data={pokedex.pokemons}
           extraData={this.state}
           keyExtractor={(item, index) => item.pokemon_species.name}
           renderItem={this.renderItem}
-        />
-        <TeamActionModal
-          active={teamActionModalActivate}
-          onRequestClose={() => {
-            this.setState({
-              teamActionModalActivate: !teamActionModalActivate
-            });
-          }}
         />
       </Container>
     );
@@ -151,19 +138,14 @@ class PokedexScreen extends Component {
 
 const mapStateToProps = state => {
   return {
-    pokedex: state.pokedexData,
-    pokemonTeamData: state.pokemonTeamData
+    pokedex: state.pokedexData
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     // eslint-disable-next-line import/no-named-as-default-member
-    getPokedex: region => dispatch(PokedexActions.getPokedexRequest(region)),
-    // eslint-disable-next-line import/no-named-as-default-member
-    addPokemonTeam: pokemonTeam =>
-      // eslint-disable-next-line import/no-named-as-default-member
-      dispatch(PokemonTeamActions.addPokemonTeam(pokemonTeam))
+    getPokedex: region => dispatch(PokedexActions.getPokedexRequest(region))
   };
 };
 

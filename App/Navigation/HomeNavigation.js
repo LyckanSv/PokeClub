@@ -3,6 +3,7 @@ import RegionsScreen from "../Pages/RegionsScreen/RegionsScreen";
 import TeamsScreen from "../Pages/TeamsScreen/TeamsScreen";
 import TeamScreen from "../Pages/TeamScreen/TeamScreen";
 import PokedexScreen from "../Pages/PokedexScreen/PokedexScreen";
+import PokemonDetailScreen from "../Pages/PokemonDetailScreen/PokemonDetailScreen";
 
 const homeNavigator = createStackNavigator(
   {
@@ -17,6 +18,9 @@ const homeNavigator = createStackNavigator(
     },
     PokedexScreen: {
       screen: PokedexScreen
+    },
+    PokemonDetailScreen: {
+      screen: PokemonDetailScreen
     }
   },
   { headerMode: "none" }

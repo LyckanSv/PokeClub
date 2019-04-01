@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ImageBackground, TouchableHighlight } from "react-native";
+import { ImageBackground, TouchableHighlight, Alert } from "react-native";
 import {
   View,
   Container,
@@ -10,7 +10,9 @@ import {
   Icon,
   Body,
   Title,
-  Right
+  Right,
+  Item,
+  Input
 } from "native-base";
 import { Col, Row, Grid } from "react-native-easy-grid";
 import { connect } from "react-redux";
@@ -25,34 +27,42 @@ class TeamScreen extends Component {
       region: "",
       currentUser: null,
       screenMode: TeamScreenModes.Info,
-      teamId: null
+      teamId: null,
+      nameValue: ""
     };
   }
 
   componentDidMount() {
-    const { navigation } = this.props;
+    const { navigation, pokemonTeamData } = this.props;
     this.setState({
       region: navigation.getParam("region"),
       teamId: navigation.getParam("teamId"),
       screenMode: navigation.getParam("screenMode")
+        ? navigation.getParam("screenMode")
+        : TeamScreenModes.Info
     });
-    this.setState({ teamId: navigation.getParam("teamId") });
     const { currentUser } = firebase.auth();
-    this.setState({ currentUser });
+    this.setState({
+      currentUser,
+      nameValue: pokemonTeamData.pokemonTeam.teamName
+        ? pokemonTeamData.pokemonTeam.teamName
+        : ""
+    });
   }
 
-  handlerCreateTeam = (team, region, user) => {
+  handlerCreateTeam = (team, region, user, teamName) => {
+    const { navigation } = this.props;
     firebase
       .database()
       .ref("Teams/")
       .push({
         region,
         team,
-        user
+        user,
+        teamName
       })
       .then(data => {
-        // success callback
-        console.log("data ", data);
+        navigation.goBack();
       })
       .catch(error => {
         // error callback
@@ -60,18 +70,20 @@ class TeamScreen extends Component {
       });
   };
 
-  handlerUpdateTeam = (team, region, user, id) => {
+  handlerUpdateTeam = (team, region, user, id, teamName) => {
+    const { navigation } = this.props;
     firebase
       .database()
       .ref(`Teams/${id}`)
       .update({
         region,
         team,
-        user
+        user,
+        teamName
       })
       .then(data => {
         // success callback
-        console.log("data ", data);
+        navigation.goBack();
       })
       .catch(error => {
         // error callback
@@ -98,16 +110,18 @@ class TeamScreen extends Component {
 
   pokemonTileBuilder = (item, index) => {
     const { navigation } = this.props;
-    const { region } = this.state;
+    const { region, screenMode } = this.state;
     if (!item) {
       return (
         <TouchableHighlight
           style={{ flex: 1 }}
           onPress={() => {
-            navigation.navigate("PokedexScreen", {
-              region,
-              index
-            });
+            if (screenMode !== TeamScreenModes.Info) {
+              navigation.navigate("PokedexScreen", {
+                region,
+                index
+              });
+            }
           }}
         >
           <View
@@ -138,7 +152,17 @@ class TeamScreen extends Component {
       );
     }
     return (
-      <TouchableHighlight style={{ flex: 1 }}>
+      <TouchableHighlight
+        style={{ flex: 1 }}
+        onPress={() => {
+          if (screenMode !== TeamScreenModes.Info) {
+            navigation.navigate("PokedexScreen", {
+              region,
+              index
+            });
+          }
+        }}
+      >
         <View
           style={{
             flex: 1,
@@ -149,7 +173,7 @@ class TeamScreen extends Component {
             overflow: "hidden"
           }}
         >
-          <View style={{ backgroundColor: "red", padding: 10 }}>
+          <View style={{ backgroundColor: "#C32F2F", padding: 10 }}>
             <Text>{item.name}</Text>
           </View>
           <ImageBackground
@@ -164,12 +188,67 @@ class TeamScreen extends Component {
     );
   };
 
+  validateData = (
+    screenMode,
+    pokemonTeam,
+    region,
+    currentUser,
+    teamId,
+    teamName
+  ) => {
+    if (teamName.length < 3) {
+      Alert.alert(
+        "Team Name",
+        "The name must be greater than 3 characters.",
+        [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+        { cancelable: false }
+      );
+      return;
+    }
+
+    if (pokemonTeam.length < 3) {
+      Alert.alert(
+        "Team Name",
+        "The team have at least 3 pokemons",
+        [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+        { cancelable: false }
+      );
+      return;
+    }
+
+    if (screenMode === TeamScreenModes.Create) {
+      this.handlerCreateTeam(pokemonTeam, region, currentUser, teamName);
+    } else if (screenMode === TeamScreenModes.Edit) {
+      this.handlerUpdateTeam(
+        pokemonTeam,
+        region,
+        currentUser,
+        teamId,
+        teamName
+      );
+    }
+  };
+
   render() {
     const { pokemonTeamData } = this.props;
-    const { region, currentUser, screenMode, teamId } = this.state;
+    const { region, currentUser, screenMode, teamId, nameValue } = this.state;
     return (
       <Container>
         {this.headerBuilder()}
+        {screenMode !== TeamScreenModes.Info && (
+          <View style={{ padding: 10 }}>
+            <Item rounded>
+              <Input
+                placeholder="Name"
+                value={nameValue}
+                onChangeText={value => {
+                  this.setState({ nameValue: value });
+                }}
+              />
+            </Item>
+          </View>
+        )}
+
         <Grid>
           <Row>
             <Col>
@@ -196,29 +275,25 @@ class TeamScreen extends Component {
             </Col>
           </Row>
         </Grid>
-        <Button
-          style={{ margin: 10 }}
-          block
-          rounded
-          onPress={() => {
-            if (screenMode === TeamScreenModes.Create) {
-              this.handlerCreateTeam(
-                pokemonTeamData.pokemonTeam,
-                region,
-                currentUser.uid
-              );
-            } else if (screenMode === TeamScreenModes.Edit) {
-              this.handlerUpdateTeam(
+        {screenMode !== TeamScreenModes.Info && (
+          <Button
+            style={{ margin: 10 }}
+            block
+            rounded
+            onPress={() => {
+              this.validateData(
+                screenMode,
                 pokemonTeamData.pokemonTeam,
                 region,
                 currentUser.uid,
-                teamId
+                teamId,
+                nameValue
               );
-            }
-          }}
-        >
-          <Text>Save</Text>
-        </Button>
+            }}
+          >
+            <Text>Save</Text>
+          </Button>
+        )}
       </Container>
     );
   }

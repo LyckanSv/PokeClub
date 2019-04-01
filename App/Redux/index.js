@@ -6,6 +6,8 @@ const RegionsRedux = require("./RegionsRedux").reducer;
 const PokedexRedux = require("./PokedexRedux").reducer;
 const PokemonRedux = require("./PokemonRedux").reducer;
 const PokemonTeamRedux = require("./PokemonTeamRedux").reducer;
+const PokemonDetailRedux = require("./PokemonDetailRedux").reducer;
+const PokemonSpeciesRedux = require("./PokemonSpeciesRedux").reducer;
 
 export default () => {
   /* ------------- Assemble The Reducers ------------- */
@@ -13,7 +15,9 @@ export default () => {
     regionsData: RegionsRedux,
     pokedexData: PokedexRedux,
     pokemonData: PokemonRedux,
-    pokemonTeamData: PokemonTeamRedux
+    pokemonTeamData: PokemonTeamRedux,
+    pokemonDetailData: PokemonDetailRedux,
+    pokemonSpeciesData: PokemonSpeciesRedux
   });
 
   return configureStore(rootReducer, rootSaga);

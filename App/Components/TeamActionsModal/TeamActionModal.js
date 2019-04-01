@@ -62,7 +62,10 @@ export default class TeamActionModal extends React.PureComponent {
               danger
               block
               iconLeft
-              onPress={onRequestDelete}
+              onPress={() => {
+                onRequestDelete();
+                onRequestClose();
+              }}
               style={{ marginHorizontal: 10, marginVertical: 5 }}
             >
               <Icon name="close" />

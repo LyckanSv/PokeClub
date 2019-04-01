@@ -12,6 +12,7 @@ import {
 } from "native-base";
 import { connect } from "react-redux";
 import firebase from "react-native-firebase";
+import { BarIndicator } from "react-native-indicators";
 import TeamItem from "../../Components/TeamItem/TeamItem";
 import SearchBar from "../../Components/SearchBar/SearchBar";
 import TeamActionModal from "../../Components/TeamActionsModal/TeamActionModal";
@@ -26,32 +27,41 @@ class TeamsScreen extends Component {
       activateSearch: false,
       teamActionModalActivate: false,
       teams: [],
-      selectedTeam: null
+      selectedTeam: null,
+      isLoading: false
     };
   }
 
   componentDidMount() {
     const { navigation } = this.props;
-    this.setState({ region: navigation.getParam("region") });
-    this.fetchTeams();
+    const region = navigation.getParam("region");
+    this.setState({ region: region });
+    this.fetchTeams(region);
   }
 
-  fetchTeams = () => {
+  fetchTeams = region => {
+    console.log("xxxx", region);
+
+    this.setState({ isLoading: true });
     firebase
       .database()
-      .ref("/Teams/")
+      .ref("/Teams")
+      .orderByChild("user")
+      .equalTo(firebase.auth().currentUser.uid)
       .on("value", snapshot => {
         const items = [];
         snapshot.forEach(child => {
-          items.push({
-            key: child.key,
-            region: child.val().region,
-            team: child.val().team,
-            user: child.val().user
-          });
+          if (child.val().region === region) {
+            items.push({
+              key: child.key,
+              region: child.val().region,
+              team: child.val().team,
+              user: child.val().user
+            });
+          }
         });
         console.log("Items", items);
-        this.setState({ teams: items });
+        this.setState({ teams: items, isLoading: false });
       });
   };
 
@@ -78,16 +88,10 @@ class TeamsScreen extends Component {
         <Right>
           <Button
             transparent
-            onPress={() => this.setState({ activateSearch: !activateSearch })}
-          >
-            <Icon name="search" />
-          </Button>
-          <Button
-            transparent
             onPress={() =>
               navigation.navigate("TeamScreen", {
                 region,
-                screenMode: TeamsScreenModes.Edit
+                screenMode: TeamsScreenModes.Create
               })
             }
           >
@@ -110,7 +114,7 @@ class TeamsScreen extends Component {
           });
         }}
         selected={false}
-        title={item.region}
+        title={item.teamName}
         times={item.team.length}
       />
     );
@@ -122,7 +126,8 @@ class TeamsScreen extends Component {
       activateSearch,
       teamActionModalActivate,
       selectedTeam,
-      region
+      region,
+      isLoading
     } = this.state;
     const { addPokemonTeam, navigation } = this.props;
     return (
@@ -136,12 +141,16 @@ class TeamsScreen extends Component {
             this.setState({ activateSearch: !activateSearch });
           }}
         />
-        <FlatList
-          data={teams}
-          extraData={this.state}
-          keyExtractor={item => item.key}
-          renderItem={this.renderItem}
-        />
+        {isLoading && <BarIndicator />}
+        {!isLoading && (
+          <FlatList
+            data={teams}
+            extraData={this.state}
+            keyExtractor={item => item.key}
+            renderItem={this.renderItem}
+          />
+        )}
+
         <TeamActionModal
           active={teamActionModalActivate}
           onRequestClose={() => {
@@ -160,8 +169,20 @@ class TeamsScreen extends Component {
               screenMode: TeamsScreenModes.Edit
             });
           }}
-          onRequestDelete={() => {}}
-          onRequestInfo={() => {}}
+          onRequestDelete={() => {
+            this.deleteTeam(selectedTeam.key);
+          }}
+          onRequestInfo={() => {
+            this.setState({
+              teamActionModalActivate: !teamActionModalActivate
+            });
+            addPokemonTeam(selectedTeam.team);
+            navigation.navigate("TeamScreen", {
+              region,
+              teamId: selectedTeam.key,
+              screenMode: TeamsScreenModes.Info
+            });
+          }}
         />
       </Container>
     );

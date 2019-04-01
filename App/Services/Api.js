@@ -14,9 +14,19 @@ const create = (baseURL = "https://pokeapi.co/api/v2") => {
     return api.get(`/pokedex/${region}/`);
   };
 
+  const getPokemonDetail = id => {
+    return api.get(`/pokemon/${id}/`);
+  };
+
+  const getPokemonSpecies = id => {
+    return api.get(`/pokemon-species/${id}/`);
+  };
+
   return {
     getRegions,
-    getPokedex
+    getPokedex,
+    getPokemonDetail,
+    getPokemonSpecies
   };
 };
 
